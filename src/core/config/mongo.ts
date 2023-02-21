@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { getEnv } from '../helpers';
+import { getEnv } from '../utils/helpers/get-env';
 async function connect() {
   try {
     mongoose.connect(getEnv('MONGO_URI'));
