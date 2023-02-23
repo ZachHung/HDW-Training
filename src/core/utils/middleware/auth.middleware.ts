@@ -3,12 +3,12 @@ import jwt from 'jsonwebtoken';
 import { HydratedDocument } from 'mongoose';
 import { IUser } from '../../../user/user.model';
 import { getEnv } from '../helpers/get-env';
-import { createError } from './error.middleware';
 import * as dotenv from 'dotenv';
+import { createError } from '../helpers/error';
 dotenv.config();
 
 export interface CustomRequest extends Request {
-  user: HydratedDocument<IUser>;
+  user: IUser & { _id: string };
 }
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
@@ -17,22 +17,20 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     if (!authHeader) throw Error;
     const token = authHeader.split(' ')[1];
 
-    const userData = jwt.verify(token, getEnv('SECRET_KEY'));
-    (req as CustomRequest).user = userData as HydratedDocument<IUser>;
+    const userData = jwt.verify(token, getEnv('JWT_SECRET'));
+    (req as CustomRequest).user = userData as IUser & { _id: string };
     next();
   } catch (error) {
     throw createError(401, 'You are not authenticated');
   }
 };
-export const authentication =
+export const auth =
   (...roles: string[]) =>
   (req: Request, res: Response, next: NextFunction) => {
+    const customRequest = req as CustomRequest;
     verifyToken(req, res, () => {
-      if (
-        (req as CustomRequest).user.id === (req as CustomRequest).params.userID ||
-        !roles.some((role) => role === (req as CustomRequest).user.role)
-      ) {
+      if (roles.some((role) => role === customRequest.user.role)) {
         next();
-      } else throw createError(403, "You don't have the right to do that");
+      } else throw Error;
     });
   };

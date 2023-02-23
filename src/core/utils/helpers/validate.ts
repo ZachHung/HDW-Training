@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { AppError, createError } from '../middleware/error.middleware';
+import { createError } from './error';
 
 export const validate = <T>(
   object: object,
@@ -20,7 +20,6 @@ export const validate = <T>(
     errorDetails.forEach((err) => {
       errResponse[err.field as string] = err.message;
     });
-    console.log('validate');
     throw createError(400, 'Validation Failed', errResponse);
   }
   return value;

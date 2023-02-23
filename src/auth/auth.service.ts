@@ -1,5 +1,5 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
-import { createError } from '../core/utils/middleware/error.middleware';
+import { createError } from '../core/utils/helpers/error';
 import { LoginDTO, RegisterDTO } from './auth.dto';
 import { IUser, User } from '../user/user.model';
 import * as dotenv from 'dotenv';
@@ -21,25 +21,24 @@ export class AuthService {
       setDefaultsOnInsert: true,
       rawResult: true,
     };
-    const result = await User.findOneAndUpdate(query, update, options);
+    const result = await User.findOneAndUpdate(query, update, options).select({
+      password: 0,
+    });
     if (result.lastErrorObject?.updatedExisting)
       throw createError(400, 'User already exist');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...serializedUser } = result.value?.toJSON() as IUser;
+    const serializedUser = result.value?.toJSON() as IUser;
     return serializedUser;
   }
 
   async login(loginDTO: LoginDTO) {
     const query: FilterQuery<IUser> = {
-      $or: [
-        { username: loginDTO.username_or_email },
-        { email: loginDTO.username_or_email },
-      ],
+      $or: [{ username: loginDTO.username }, { email: loginDTO.username }],
     };
     const user: IUser = await User.findOne(query).lean();
     if (!user) throw createError(401, 'Wrong credentials');
     const isPassValid = await bcrypt.compare(loginDTO.password, user.password);
-    if (!isPassValid) createError(401, 'Wrong credentials');
+    if (!isPassValid) throw createError(401, 'Wrong credentials');
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...serializedUser } = user;
     const payload: Omit<IUser, 'password'> = serializedUser;
@@ -47,5 +46,10 @@ export class AuthService {
       expiresIn: getEnv('JWT_EXP_IN'),
     });
     return accessToken;
+  }
+
+  async getAll() {
+    const userList = await User.find({}).lean();
+    return userList;
   }
 }

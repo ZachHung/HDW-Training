@@ -12,11 +12,11 @@ export interface RegisterDTO {
 }
 
 export const loginSchema = Joi.object({
-  username_or_email: Joi.string().required(),
+  username: Joi.string().required(),
   password: Joi.string().min(6).alphanum().required(),
 });
 
 export interface LoginDTO {
-  username_or_email: string;
+  username: string;
   password: string;
 }
