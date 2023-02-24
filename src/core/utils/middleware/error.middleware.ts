@@ -15,10 +15,6 @@ export const errorResponder = (
   }
 };
 
-export const invalidPathHandler = (
-  request: Request,
-  response: Response,
-  next: NextFunction,
-) => {
+export const invalidPathHandler = (request: Request, response: Response, next: NextFunction) => {
   response.status(404).json(createError(404, 'Path not found'));
 };

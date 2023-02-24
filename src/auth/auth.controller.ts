@@ -2,7 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { createResponse } from '../core/utils/helpers/response';
 import { validate } from '../core/utils/helpers/validate';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
-import { LoginDTO, loginSchema, RegisterDTO, registerSchema } from './auth.dto';
+import {
+  LoginDTO,
+  loginSchema,
+  RefreshDTO,
+  refreshSchema,
+  RegisterDTO,
+  registerSchema,
+} from './auth.dto';
 import { AuthService } from './auth.service';
 
 const authService = new AuthService();
@@ -11,7 +18,7 @@ export class AuthController {
     try {
       const payload = validate<RegisterDTO>(req.body, registerSchema);
       const newUser = await authService.register(payload);
-      createResponse(res, newUser, 'Register new user', 201);
+      createResponse(res, newUser, 201);
     } catch (error) {
       next(error);
     }
@@ -39,6 +46,16 @@ export class AuthController {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await authService.getAll();
+      createResponse(res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const payload = validate<RefreshDTO>(req.body, refreshSchema);
+      const result = await authService.refreshToken(payload);
       createResponse(res, result);
     } catch (error) {
       next(error);

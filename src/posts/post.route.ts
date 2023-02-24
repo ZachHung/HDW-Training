@@ -6,9 +6,11 @@ import { PostController } from './post.controller';
 const PostRouter = express.Router();
 const postController = new PostController();
 
-PostRouter.post('/', auth(Roles.CUSTOMER, Roles.ADMIN), postController.create);
-PostRouter.get('/:id', auth(Roles.CUSTOMER, Roles.ADMIN), postController.get);
-PostRouter.put('/:id', auth(Roles.CUSTOMER, Roles.ADMIN), postController.update);
-PostRouter.delete('/:id', auth(Roles.CUSTOMER, Roles.ADMIN), postController.delete);
+PostRouter.get('', postController.getAll);
+PostRouter.post('/', auth(Roles.CUSTOMER), postController.create);
+PostRouter.get('/:id/users', auth(Roles.CUSTOMER), postController.getByUser);
+PostRouter.get('/:id', auth(Roles.CUSTOMER), postController.getById);
+PostRouter.put('/:id', auth(Roles.CUSTOMER), postController.update);
+PostRouter.delete('/:id', auth(Roles.CUSTOMER), postController.delete);
 
 export { PostRouter };

@@ -5,6 +5,7 @@ import { IUser } from '../../../user/user.model';
 import { getEnv } from '../helpers/get-env';
 import * as dotenv from 'dotenv';
 import { createError } from '../helpers/error';
+import { Roles } from '../types/enum';
 dotenv.config();
 
 export interface CustomRequest extends Request {
@@ -29,7 +30,11 @@ export const auth =
   (req: Request, res: Response, next: NextFunction) => {
     const customRequest = req as CustomRequest;
     verifyToken(req, res, () => {
-      if (roles.some((role) => role === customRequest.user.role)) {
+      if (
+        roles.some(
+          (role) => role === customRequest.user.role || customRequest.user.role === Roles.ADMIN,
+        )
+      ) {
         next();
       } else throw Error;
     });
