@@ -1,12 +1,14 @@
-import mongoose, { model } from 'mongoose';
+import mongoose, { model, Types } from 'mongoose';
 import { Roles } from '../core/utils/types/enum';
 const { Schema } = mongoose;
 
 export interface IUser {
+  _id: string;
   username: string;
   password: string;
   email: string;
   role?: Roles;
+  refresh_token?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -15,6 +17,7 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     email: { type: String, required: true },
     role: { type: String, default: 'CUSTOMER', enum: Roles },
+    refresh_token: String,
   },
   { collection: 'users' },
 );

@@ -20,3 +20,10 @@ export interface LoginDTO {
   username: string;
   password: string;
 }
+
+export interface RefreshDTO {
+  refresh_token: string;
+}
+export const refreshSchema = Joi.object({
+  refresh_token: Joi.string().required(),
+});

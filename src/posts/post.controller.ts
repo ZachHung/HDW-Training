@@ -19,16 +19,35 @@ export class PostController {
       const payload = validate<CreatePostDTO>(req.body, createPostSchema);
       const { user } = req as CustomRequest;
       const newPost = await postService.create(user._id, payload);
-      createResponse(res, newPost, 'Created new Post', 201);
+      createResponse(res, newPost, 201);
     } catch (error) {
       next(error);
     }
   }
 
-  async get(req: Request, res: Response, next: NextFunction) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const payload = validate<getPostDTO>(req.params, getPostSchema);
-      const post = await postService.get(payload);
+      const post = await postService.getById(payload);
+      createResponse(res, post);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getByUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const payload = validate<getPostDTO>(req.params, getPostSchema);
+      const post = await postService.getByUser(payload);
+      createResponse(res, post);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const post = await postService.getAll();
       createResponse(res, post);
     } catch (error) {
       next(error);
@@ -37,10 +56,7 @@ export class PostController {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const payload = validate<UpdatePostDTO>(
-        { id: req.params.id, ...req.body },
-        updatePostSchema,
-      );
+      const payload = validate<UpdatePostDTO>({ id: req.params.id, ...req.body }, updatePostSchema);
       const post = await postService.update(payload);
       createResponse(res, post);
     } catch (error) {

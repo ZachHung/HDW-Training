@@ -9,6 +9,7 @@ export const validate = <T>(
   const { error, value } = schema.validate(object, { abortEarly: false, ...options });
 
   if (error) {
+    console.log(error.details);
     const errorDetails = error.details.map((detail) => {
       const { message, path } = detail;
       const [field] = [...path];
@@ -16,6 +17,7 @@ export const validate = <T>(
     });
 
     const errResponse: Record<string, string> = {};
+    console.log(errorDetails);
 
     errorDetails.forEach((err) => {
       errResponse[err.field as string] = err.message;

@@ -26,11 +26,23 @@ export class PostService {
     return populatedPost;
   }
 
-  async get(getPostDTO: getPostDTO) {
+  async getById(getPostDTO: getPostDTO) {
     const post = await Post.findOne({ _id: getPostDTO.id })
       .populate('user_id', '-password -__v')
       .lean();
     if (!post) throw createError(404, 'Post not found');
+    return post;
+  }
+
+  async getByUser(getPostDTO: getPostDTO) {
+    const post = await Post.find({ user_id: getPostDTO.id })
+      .populate('user_id', '-password -__v')
+      .lean();
+    return post;
+  }
+
+  async getAll() {
+    const post = await Post.find({}).populate('user_id', '-password -__v').lean();
     return post;
   }
 
