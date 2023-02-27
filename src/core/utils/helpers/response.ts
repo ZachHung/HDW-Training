@@ -1,6 +1,7 @@
 import { Response } from 'express';
+import { Controller } from 'tsoa';
 
-class HttpResponse<T> {
+export class HttpResponse<T> {
   status_code: number;
   data: T;
 
@@ -10,6 +11,11 @@ class HttpResponse<T> {
   }
 }
 
-export const createResponse = <T>(res: Response, data: T, statusCode = 200) => {
-  return res.status(statusCode).json(new HttpResponse(statusCode, data));
+export const createResponse = <T, C extends Controller>(
+  controller: C,
+  data: T,
+  statusCode = 200,
+) => {
+  controller.setStatus(statusCode);
+  return new HttpResponse(statusCode, data);
 };

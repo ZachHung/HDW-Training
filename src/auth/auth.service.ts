@@ -1,7 +1,7 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { createError } from '../core/utils/helpers/error';
 import { LoginDTO, RefreshDTO, RegisterDTO } from './auth.dto';
-import { IUser, User } from '../user/user.model';
+import { IUser, User } from '../users/users.model';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import bcrypt from 'bcrypt';
@@ -25,7 +25,7 @@ export class AuthService {
       password: 0,
     });
     if (result.lastErrorObject?.updatedExisting) throw createError(400, 'User already exist');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const serializedUser = result.value?.toJSON() as IUser;
     return serializedUser;
   }
@@ -40,7 +40,6 @@ export class AuthService {
     const isPassValid = await bcrypt.compare(loginDTO.password, user.password);
     if (!isPassValid) throw createError(401, 'Wrong credentials');
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, refresh_token, ...serializedUser } = user;
     const payload = serializedUser;
     const accessToken = jwt.sign(payload, getEnv('JWT_SECRET'), {
@@ -52,11 +51,6 @@ export class AuthService {
 
     await User.findByIdAndUpdate(user._id, { $set: { refresh_token: refreshToken } });
     return { accessToken, refreshToken };
-  }
-
-  async getAll() {
-    const userList = await User.find({}).lean();
-    return userList;
   }
 
   async refreshToken(refreshDTO: RefreshDTO) {

@@ -1,17 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import moment from 'moment';
+import { AppError } from '../helpers/error';
+import logger from '../helpers/logger';
 
-export const requestLogger = (request: Request, response: Response, next: NextFunction) => {
-  console.log(`[${moment().format('LTS  DD-MM-YYYY')}] ${request.method} URL:: ${request.url}`);
+export const requestLogger = (req: Request, _res: Response, next: NextFunction) => {
+  logger.info(`${req.method} URL:: ${req.url}`);
   next();
 };
 
 export const errorLogger = (
-  error: Error,
-  request: Request,
-  response: Response,
+  error: Error | AppError,
+  _req: Request,
+  _res: Response,
   next: NextFunction,
 ) => {
-  console.log(`[${moment().format('LTS  DD-MM-YYYY')}] ERROR: ${error.message}`);
+  if (error instanceof AppError && error.status_code >= 500) {
+    logger.error(error);
+  }
   next(error);
 };
