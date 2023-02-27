@@ -1,17 +1,17 @@
 import mongoose, { model, Types } from 'mongoose';
-import { Roles } from '../core/utils/types/enum';
-import { User } from '../user/user.model';
+import { MongoBaseSchema } from '../core/utils/types/mongo.base.interface';
+import { IUser, User } from '../users/users.model';
 const { Schema } = mongoose;
 
-export interface IPost {
-  user_id?: Types.ObjectId;
+export interface IPost extends MongoBaseSchema {
+  user_id?: IUser;
   title: string;
   content: string;
 }
 
 const postSchema = new Schema<IPost>(
   {
-    user_id: { type: Types.ObjectId, ref: 'User' },
+    user_id: { type: Types.ObjectId, ref: User },
     title: { type: String, required: true },
     content: { type: String, required: true },
   },

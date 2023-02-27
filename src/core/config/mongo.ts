@@ -30,4 +30,5 @@ async function connectMongoDB(): Promise<void> {
     console.log(`Error connecting to DB`, error);
   }
 }
+
 export default connectMongoDB;

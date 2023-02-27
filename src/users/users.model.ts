@@ -1,9 +1,9 @@
 import mongoose, { model, Types } from 'mongoose';
-import { Roles } from '../core/utils/types/enum';
+import { Roles } from '../core/utils/constants/roles';
+import { MongoBaseSchema } from '../core/utils/types/mongo.base.interface';
 const { Schema } = mongoose;
 
-export interface IUser {
-  _id: string;
+export interface IUser extends MongoBaseSchema {
   username: string;
   password: string;
   email: string;

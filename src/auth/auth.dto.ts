@@ -1,29 +1,20 @@
 import Joi from 'joi';
+import { IUser } from '../users/users.model';
+
+export type RegisterDTO = Pick<IUser, 'username' | 'email' | 'password'>;
 export const registerSchema = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().min(6).alphanum().required(),
   email: Joi.string().email(),
 });
 
-export interface RegisterDTO {
-  username: string;
-  email: string;
-  password: string;
-}
-
+export type LoginDTO = Pick<IUser, 'username' | 'password'>;
 export const loginSchema = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().min(6).alphanum().required(),
 });
 
-export interface LoginDTO {
-  username: string;
-  password: string;
-}
-
-export interface RefreshDTO {
-  refresh_token: string;
-}
+export type RefreshDTO = Required<Pick<IUser, 'refresh_token'>>;
 export const refreshSchema = Joi.object({
   refresh_token: Joi.string().required(),
 });
