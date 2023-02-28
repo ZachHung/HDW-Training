@@ -36,23 +36,28 @@ export class PostController extends Controller {
     return createResponse(this, newPost, 201);
   }
 
+  @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_BY_ID)
   async getById(@Path() id: string): Promise<HttpResponse<IPost>> {
     const post = await new PostService().getById(id);
     return createResponse(this, post);
   }
+
+  @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_BY_USER)
   async getByUser(@Path() id: string): Promise<HttpResponse<IPost[]>> {
     const post = await new PostService().getByUser(id);
     return createResponse(this, post);
   }
 
+  @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_ALL_POSTS)
   async getAll(): Promise<HttpResponse<IPost[]>> {
     const post = await new PostService().getAll();
     return createResponse(this, post);
   }
 
+  @Security('jwt', [Roles.CUSTOMER])
   @Put(PostRoutes.PUT_UPDATE)
   async update(
     @Request() req: CustomRequest,
@@ -64,6 +69,7 @@ export class PostController extends Controller {
     return createResponse(this, post);
   }
 
+  @Security('jwt', [Roles.CUSTOMER])
   @Delete(PostRoutes.DELETE_ID)
   async delete(@Path() id: string): Promise<HttpResponse<IPost>> {
     const post = await new PostService().delete(id);

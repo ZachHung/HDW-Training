@@ -7,23 +7,11 @@ import { createError } from '../helpers/error';
 import { Roles } from '../constants/roles';
 dotenv.config();
 
+// TODO: Move all typescrypt type to core/types
 export type CustomRequest = Request & {
   user: IUser;
 };
 
-// const verifyToken = (req: Request, _res: Response, next: NextFunction) => {
-//   const authHeader = req.headers.authorization;
-//   try {
-//     if (!authHeader) throw Error;
-//     const token = authHeader.split(' ')[1];
-
-//     const userData = jwt.verify(token, getEnv('JWT_SECRET')) as IUser;
-//     (req as CustomRequest).user = userData;
-//     next();
-//   } catch (error) {
-//     throw createError(401, 'You are not authenticated');
-//   }
-// };
 export const expressAuthentication = (request: Request, securityName: string, roles: string[]) => {
   const authHeader = request.headers.authorization;
   if (!authHeader || !authHeader.split(' ')[1] || securityName !== 'jwt')
@@ -35,6 +23,11 @@ export const expressAuthentication = (request: Request, securityName: string, ro
         return reject(createError(401, 'Invalid Token'));
       const customRequest = request as CustomRequest;
       customRequest.user = decoded as IUser;
+
+      // TODO: check if is the author then 403
+      // if (roles.includes(Roles.OP) || customRequest.user._id !== )
+      // return reject(createError(403, "You don't have the rights to do that"));
+
       if (
         !roles.some(
           (role) => role === customRequest.user.role || customRequest.user.role === Roles.ADMIN,

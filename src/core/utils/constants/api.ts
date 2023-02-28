@@ -21,3 +21,11 @@ export const PostRoutes = {
   PUT_UPDATE: `{id}`,
   DELETE_ID: `{id}`,
 };
+
+export const EventRoutes = {
+  POST_CREATE_EVENT: ``,
+};
+
+export const VoucherRoutes = {
+  POST_CREATE_VOUCHER: ``,
+};

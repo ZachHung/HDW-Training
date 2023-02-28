@@ -11,7 +11,11 @@ export interface IPost extends MongoBaseSchema {
 
 const postSchema = new Schema<IPost>(
   {
-    user_id: { type: Types.ObjectId, ref: User },
+    user_id: {
+      type: Types.ObjectId,
+      ref: User,
+      populate: { path: 'user_id', select: '-password -refresh_token' },
+    },
     title: { type: String, required: true },
     content: { type: String, required: true },
   },
