@@ -10,6 +10,8 @@ import { errorLogger, requestLogger } from './core/utils/middleware/logger.middl
 import { errorResponder, invalidPathHandler } from './core/utils/middleware/error.middleware';
 import { getEnv } from './core/utils/helpers/get-env';
 import { RegisterRoutes } from './tsoa/routes';
+import mongoose from 'mongoose';
+import shutdownGracefully from './core/utils/helpers/graceful-shutdown';
 
 const app = express();
 connectMongoDB();
@@ -31,6 +33,8 @@ app.use(invalidPathHandler);
 
 const port = getEnv('PORT') || 6969;
 
-app.listen(port, async () => {
+const server = app.listen(port, async () => {
   console.log('Listening on', port);
 });
+// Gracefully shutdown
+shutdownGracefully(server);

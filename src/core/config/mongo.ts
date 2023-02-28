@@ -1,22 +1,23 @@
 import mongoose, { Connection } from 'mongoose';
 import { getEnv } from '../utils/helpers/get-env';
 import * as dotenv from 'dotenv';
+import logger from './logger';
 dotenv.config();
 
 let mongooseConnection: Connection;
 async function connectMongoDB(): Promise<void> {
   try {
     mongoose.connection.on('connecting', () => {
-      console.log(`MongoDB: connecting.`);
+      logger.info(`🔵 MongoDB: connecting.`);
     });
     mongoose.connection.on('connected', () => {
-      console.log('MongoDB: connected.');
+      logger.info('🟢 MongoDB: connected.');
     });
     mongoose.connection.on('disconnecting', () => {
-      console.log('MongoDB: disconnecting.');
+      logger.info('🟠 MongoDB: disconnecting.');
     });
     mongoose.connection.on('disconnected', () => {
-      console.log('MongoDB: disconnected.');
+      logger.info('🔴 MongoDB: disconnected.');
     });
 
     if (mongoose.connection.readyState !== 1 && mongoose.connection.readyState !== 2) {
@@ -27,7 +28,7 @@ async function connectMongoDB(): Promise<void> {
       mongooseConnection = conn.connection;
     }
   } catch (error) {
-    console.log(`Error connecting to DB`, error);
+    logger.error(`Error connecting to DB`, error);
   }
 }
 

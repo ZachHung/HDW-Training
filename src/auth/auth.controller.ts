@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import { createResponse } from '../core/utils/helpers/response';
+import { Request as ExRequest, Response, NextFunction } from 'express';
+import { Body, Controller, Get, Post, Request, Route, Security } from 'tsoa';
+import { AuthRoutes } from '../core/utils/constants/api';
+import { Roles } from '../core/utils/constants/roles';
+import { createResponse, HttpResponse } from '../core/utils/helpers/response';
 import { validate } from '../core/utils/helpers/validate';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
 import { UserService } from '../users/user.service';
+import { IUser } from '../users/users.model';
 import {
   LoginDTO,
   loginSchema,
@@ -13,52 +17,50 @@ import {
 } from './auth.dto';
 import { AuthService } from './auth.service';
 
-export class AuthController {
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const payload = validate<RegisterDTO>(req.body, registerSchema);
-      const newUser = await new AuthService().register(payload);
-      createResponse(res, newUser, 201);
-    } catch (error) {
-      next(error);
-    }
+@Route('auth')
+export class AuthController extends Controller {
+  @Post(AuthRoutes.POST_REGISTER)
+  async create(@Body() body: RegisterDTO): Promise<HttpResponse<IUser>> {
+    const payload = validate<RegisterDTO>(body, registerSchema);
+    const newUser = await new AuthService().register(payload);
+    return createResponse(this, newUser, 201);
   }
 
-  async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      const payload = validate<LoginDTO>(req.body, loginSchema);
-      const result = await new AuthService().login(payload);
-      createResponse(res, result);
-    } catch (error) {
-      next(error);
-    }
+  @Post(AuthRoutes.POST_LOGIN)
+  async login(@Body() body: LoginDTO): Promise<
+    HttpResponse<{
+      accessToken: string;
+      refreshToken: string;
+    }>
+  > {
+    const payload = validate<LoginDTO>(body, loginSchema);
+    const result = await new AuthService().login(payload);
+    return createResponse(this, result);
   }
 
-  async getMe(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { user } = req as CustomRequest;
-      createResponse(res, user);
-    } catch (error) {
-      next(error);
-    }
+  @Security('jwt', [Roles.CUSTOMER])
+  @Get(AuthRoutes.GET_ME)
+  async getMe(@Request() req: CustomRequest): Promise<HttpResponse<IUser>> {
+    const { user } = req;
+    return createResponse(this, user);
   }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await new UserService().getAll();
-      createResponse(res, result);
-    } catch (error) {
-      next(error);
-    }
+  @Security('jwt', [Roles.ADMIN])
+  @Get(AuthRoutes.GET_ALL_USERS)
+  async getAll(@Request() req: CustomRequest): Promise<HttpResponse<IUser[]>> {
+    const result = await new UserService().getAll();
+    return createResponse(this, result);
   }
 
-  async refreshToken(req: Request, res: Response, next: NextFunction) {
-    try {
-      const payload = validate<RefreshDTO>(req.body, refreshSchema);
-      const result = await new AuthService().refreshToken(payload);
-      createResponse(res, result);
-    } catch (error) {
-      next(error);
-    }
+  @Post(AuthRoutes.POST_TOKEN)
+  async refreshToken(@Body() body: RefreshDTO): Promise<
+    HttpResponse<{
+      accessToken: string;
+      refreshToken: string;
+    }>
+  > {
+    const payload = validate<RefreshDTO>(body, refreshSchema);
+    const result = await new AuthService().refreshToken(payload);
+    return createResponse(this, result);
   }
 }
