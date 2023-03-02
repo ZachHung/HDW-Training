@@ -1,5 +1,5 @@
-import { Response } from 'express';
 import { Controller } from 'tsoa';
+import logger from '../../config/logger';
 
 export class HttpResponse<T> {
   status_code: number;
@@ -17,5 +17,6 @@ export const createResponse = <T, C extends Controller>(
   statusCode = 200,
 ) => {
   controller.setStatus(statusCode);
-  return new HttpResponse(statusCode, data);
+  const response = new HttpResponse(statusCode, data);
+  return response;
 };

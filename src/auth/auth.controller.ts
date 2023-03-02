@@ -1,9 +1,7 @@
-import { Request as ExRequest, Response, NextFunction } from 'express';
 import { Body, Controller, Get, Post, Request, Route, Security } from 'tsoa';
 import { AuthRoutes } from '../core/utils/constants/api';
 import { Roles } from '../core/utils/constants/roles';
-import { createResponse, HttpResponse } from '../core/utils/helpers/response';
-import { validate } from '../core/utils/helpers/validate';
+import { createResponse, HttpResponse, validate } from '../core/utils/helpers';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
 import { UserService } from '../users/user.service';
 import { IUser } from '../users/users.model';
@@ -47,7 +45,7 @@ export class AuthController extends Controller {
 
   @Security('jwt', [Roles.ADMIN])
   @Get(AuthRoutes.GET_ALL_USERS)
-  async getAll(@Request() req: CustomRequest): Promise<HttpResponse<IUser[]>> {
+  async getAll(@Request() _req: CustomRequest): Promise<HttpResponse<IUser[]>> {
     const result = await new UserService().getAll();
     return createResponse(this, result);
   }

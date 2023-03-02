@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import bcrypt from 'bcrypt';
 import { getEnv } from '../core/utils/helpers/get-env';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export class AuthService {
   async register(registerDTO: RegisterDTO) {

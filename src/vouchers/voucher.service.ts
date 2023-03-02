@@ -1,42 +1,78 @@
 import mongoose from 'mongoose';
-import { createError } from '../core/utils/helpers/error';
+import logger from '../core/config/logger';
+import { AppError, createError } from '../core/utils/helpers';
 import { Event } from '../events/events.model';
-import { CreateVoucherDTO } from './voucher.dto';
+import { CreateVoucherDTO } from './vouchers.dto';
 import { IVoucher, Voucher } from './vouchers.model';
+import { setTimeout } from 'timers/promises';
+import { DELAY_TIME, MAX_RETRY_COUNT } from '../core/utils/constants/voucher';
+import { emailQueue } from '../core/queues/email.queue';
+import { VoucherMailTemplate } from '../core/utils/types/mail.template.type';
 
 export class VoucherService {
   async create(data: CreateVoucherDTO, user_id: string): Promise<IVoucher[]> {
-    // const event = await Event.findById(data.event_id).lean();
+    const isEventExist = await Event.findById(data.event_id).lean();
+    if (!isEventExist) throw createError(404, 'Event not found');
 
     // Start session
     const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const voucherDoc = await Voucher.create([{ ...data, user_id }], {
-        session: session,
-        new: true,
-      });
+    let voucherList: IVoucher[] = [];
 
-      const event = await Event.findOneAndUpdate(
-        { _id: voucherDoc[0].event_id },
-        { $inc: { issued: 1 } },
-        { runValidators: true, session },
-      );
+    for (let i = 0; i <= MAX_RETRY_COUNT; ++i) {
+      try {
+        if (i === MAX_RETRY_COUNT) {
+          throw createError(408, 'Request timeout');
+        }
+        session.startTransaction();
+        const event = await Event.findOneAndUpdate(
+          { $expr: { $and: [{ $lt: ['$issued', '$max_quantity'] }, { _id: data.event_id }] } },
+          { $inc: { issued: 1 } },
+          { runValidators: true, session },
+        );
+        if (!event) throw createError(422, 'Maximum voucher reached');
 
-      if (!event) throw createError(404, 'Event does not exist');
+        voucherList = await Voucher.create([{ ...data, user_id }], {
+          session: session,
+          new: true,
+        });
 
-      if (event.max_quantity - event.issued <= 0)
-        throw createError(422, 'Maximum vouchers reached');
+        await session.commitTransaction();
+        // await session.endSession();
 
-      await session.commitTransaction();
+        break;
+      } catch (error) {
+        await session.abortTransaction();
 
-      return voucherDoc;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      await session.endSession();
+        if (!(error instanceof AppError)) {
+          await setTimeout(DELAY_TIME);
+          logger.info('Retrying');
+          continue;
+        }
+        // await session.endSession();
+        throw error;
+      } finally {
+        await session.endSession();
+      }
     }
-    // do something ...
+    // Activate VOucher
+    const voucher: IVoucher = await Voucher.findOneAndUpdate(
+      { event_id: data.event_id, user_id: user_id, active: false },
+      { $set: { active: true } },
+      { runValidators: true },
+    )
+      .populate('event_id user_id')
+      .lean();
+    if (!voucher) throw createError(404, 'Voucher not found');
+
+    // createEmailJob
+    const jobData: VoucherMailTemplate & { to: string } = {
+      Code: voucher._id,
+      CompanyName: '13Team',
+      Discount: 15,
+      FirstName: voucher.user_id?.username || '',
+      to: voucher.user_id?.email || '',
+    };
+    await emailQueue.add('email', jobData);
+    return voucherList;
   }
 }

@@ -25,7 +25,7 @@ export const expressAuthentication = (request: Request, securityName: string, ro
       customRequest.user = decoded as IUser;
 
       // TODO: check if is the author then 403
-      // if (roles.includes(Roles.OP) || customRequest.user._id !== )
+      // if (!roles.includes(Roles.OP) || customRequest.user._id !== )
       // return reject(createError(403, "You don't have the rights to do that"));
 
       if (
