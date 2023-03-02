@@ -4,7 +4,7 @@ import { Roles } from '../core/utils/constants/roles';
 import { createResponse, HttpResponse } from '../core/utils/helpers/response';
 import { validate } from '../core/utils/helpers/validate';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
-import { CreateVoucherDTO, createVoucherSchema } from './voucher.dto';
+import { CreateVoucherDTO, createVoucherSchema } from './vouchers.dto';
 import { VoucherService } from './voucher.service';
 import { IVoucher } from './vouchers.model';
 

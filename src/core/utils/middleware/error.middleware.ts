@@ -4,7 +4,7 @@ import { AppError, createError } from '../helpers/error';
 import logger from '../../config/logger';
 
 export const errorResponder = (
-  error: AppError | ValidateError,
+  error: AppError,
   _request: Request,
   _response: Response,
   _next: NextFunction,
@@ -24,9 +24,8 @@ export const errorResponder = (
       details: error?.fields,
     });
   }
-
-  const status = error.status_code || 500;
-
+  const status = error?.status_code || 500;
+  // console.log(error);
   logger.error(error);
   return _response.status(status).json(error);
 };

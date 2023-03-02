@@ -1,19 +1,25 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import express, { Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
-import route from './routes.old';
 
-import connectMongoDB from './core/config/mongo';
-import { errorLogger, requestLogger } from './core/utils/middleware/logger.middleware';
+import { connectMongoDB } from './core/config/mongo';
+import { requestLogger } from './core/utils/middleware/logger.middleware';
 import { errorResponder, invalidPathHandler } from './core/utils/middleware/error.middleware';
-import { getEnv } from './core/utils/helpers/get-env';
+import { getEnv, shutdownGracefully } from './core/utils/helpers';
 import { RegisterRoutes } from './tsoa/routes';
-import mongoose from 'mongoose';
-import shutdownGracefully from './core/utils/helpers/graceful-shutdown';
+import logger from './core/config/logger';
 
-const app = express();
+//import workers
+import './core/queues/email.worker';
+import { Server } from 'http';
+import { emailQueue } from './core/queues/email.queue';
+
+export const app: Application = express();
+let server: Server;
+
+// connect database
 connectMongoDB();
 
 app.use(cors());
@@ -27,14 +33,19 @@ app.use('/docs', swaggerUi.serve, async (_req: Request, res: Response) => {
 });
 RegisterRoutes(app);
 
-app.use(errorLogger);
 app.use(errorResponder);
 app.use(invalidPathHandler);
 
 const port = getEnv('PORT') || 6969;
 
-const server = app.listen(port, async () => {
-  console.log('Listening on', port);
+// Resume Queue then start server
+emailQueue.resume().then(() => {
+  server = app.listen(port, async () => {
+    logger.info(`Server is running at port ${port} in ${getEnv('NODE_ENV')} mode`);
+    logger.info(`Press CTRL-C to stop`);
+  });
 });
+
 // Gracefully shutdown
-shutdownGracefully(server);
+process.on('SIGINT', () => shutdownGracefully(server));
+process.on('SIGTERM', () => shutdownGracefully(server));

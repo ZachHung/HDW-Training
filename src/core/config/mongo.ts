@@ -14,13 +14,14 @@ async function connectMongoDB(): Promise<void> {
       logger.info('🟢 MongoDB: connected.');
     });
     mongoose.connection.on('disconnecting', () => {
-      logger.info('🟠 MongoDB: disconnecting.');
+      logger.warn('🟠 MongoDB: disconnecting.');
     });
     mongoose.connection.on('disconnected', () => {
-      logger.info('🔴 MongoDB: disconnected.');
+      logger.warn('🔴 MongoDB: disconnected.');
     });
 
     if (mongoose.connection.readyState !== 1 && mongoose.connection.readyState !== 2) {
+      mongoose.set('strictQuery', true);
       const conn = await mongoose.connect(getEnv('MONGO_URI'), {
         autoIndex: true,
         serverSelectionTimeoutMS: 5000,
@@ -32,4 +33,4 @@ async function connectMongoDB(): Promise<void> {
   }
 }
 
-export default connectMongoDB;
+export { connectMongoDB, mongooseConnection };

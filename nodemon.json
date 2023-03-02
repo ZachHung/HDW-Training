@@ -2,5 +2,6 @@
   "ignore": [".git", "node_modules", "dist", "src/tsoa"],
   "watch": ["./src"],
   "exec": "ts-node src/index.ts",
-  "ext": "ts"
+  "ext": "ts",
+  "delay": "2500"
 }

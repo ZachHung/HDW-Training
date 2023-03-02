@@ -12,9 +12,9 @@ export interface IVoucher extends MongoBaseSchema {
 
 const voucherSchema = new Schema<IVoucher>(
   {
-    event_id: { type: Schema.Types.ObjectId, ref: Event },
+    event_id: { type: Types.ObjectId, ref: Event },
     active: { type: Boolean, default: false },
-    user_id: { type: Schema.Types.ObjectId, ref: User },
+    user_id: { type: Types.ObjectId, ref: User },
   },
   { collection: 'vouchers' },
 );
