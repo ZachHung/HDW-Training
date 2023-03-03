@@ -26,7 +26,7 @@ let server: Server;
 connectMongoDB();
 
 (async () => {
-  await RepeatQueue.add('', {}, { repeat: { every: 1000 * 60 * 1 } });
+  await RepeatQueue.add('', {}, { repeat: { every: 1000 * 60 * 5 } });
 })();
 
 app.use(cors());
