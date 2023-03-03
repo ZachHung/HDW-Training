@@ -24,6 +24,9 @@ export const PostRoutes = {
 
 export const EventRoutes = {
   POST_CREATE_EVENT: ``,
+  POST_EDIT_ME: `{eventId}/editable/me`,
+  POST_EDIT_RELEASE: `{eventId}/editable/release`,
+  POST_EDIT_MAINTAIN: `{eventId}/editable/maintain`,
 };
 
 export const VoucherRoutes = {

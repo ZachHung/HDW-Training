@@ -12,15 +12,22 @@ import { RegisterRoutes } from './tsoa/routes';
 import logger from './core/config/logger';
 
 //import workers
-import './core/queues/email.worker';
+import './core/queues/workers/send-mail.worker';
+import './core/queues/workers/check-connection.worker';
+
 import { Server } from 'http';
 import { emailQueue } from './core/queues/email.queue';
+import { RepeatQueue } from './core/queues/repeat.queue';
 
 export const app: Application = express();
 let server: Server;
 
 // connect database
 connectMongoDB();
+
+(async () => {
+  await RepeatQueue.add('', {}, { repeat: { every: 1000 * 60 * 1 } });
+})();
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));

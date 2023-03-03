@@ -29,7 +29,7 @@ export class VoucherService {
           { $inc: { issued: 1 } },
           { runValidators: true, session },
         );
-        if (!event) throw createError(422, 'Maximum voucher reached');
+        if (!event) throw createError(456, 'Maximum voucher reached');
 
         voucherList = await Voucher.create([{ ...data, user_id }], {
           session: session,
@@ -43,7 +43,9 @@ export class VoucherService {
       } catch (error) {
         await session.abortTransaction();
 
-        if (!(error instanceof AppError)) {
+        if (
+          !(error instanceof AppError && (error.status_code === 456 || error.status_code === 408))
+        ) {
           await setTimeout(DELAY_TIME);
           logger.info('Retrying');
           continue;
