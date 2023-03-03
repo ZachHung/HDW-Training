@@ -13,7 +13,7 @@ export const shutdownGracefully = async (server: Server) => {
     await checkConnectionWorker.close();
     logger.warn('Closed worker');
     await emailQueue.pause();
-    await RepeatQueue.drain();
+    await RepeatQueue.drain(true);
     logger.warn('Paused queue');
     server.close(() => {
       logger.warn('Http server closed.');
