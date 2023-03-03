@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsoa spec-and-routes && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/index.ts",
+    "start": "node ./dist/index.ts",
     "start:dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "lint": "eslint ./src/**/*.ts",
     "lint:staged": "lint-staged",
