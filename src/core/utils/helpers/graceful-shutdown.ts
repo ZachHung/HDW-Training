@@ -2,7 +2,7 @@ import { Server } from 'http';
 import logger from '../../config/logger';
 import { mongooseConnection } from '../../config/mongo';
 import { emailQueue } from '../../queues/email.queue';
-import emailWorker from '../../queues/email.worker';
+import emailWorker from '../../queues/workers/send-mail.worker';
 
 export const shutdownGracefully = async (server: Server) => {
   try {

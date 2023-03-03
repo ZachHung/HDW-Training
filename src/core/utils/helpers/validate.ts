@@ -3,7 +3,7 @@ import { createError } from './error';
 
 export const validate = <T>(
   object: object,
-  schema: Joi.ObjectSchema,
+  schema: Joi.ObjectSchema<T>,
   options: Joi.ValidationOptions = {},
 ): T => {
   const { error, value } = schema.validate(object, { abortEarly: false, ...options });

@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import { AppError, createError } from '../helpers/error';
 import logger from '../../config/logger';
+import { errorToJSON } from 'bullmq';
 
 export const errorResponder = (
-  error: AppError,
+  error: unknown,
   _request: Request,
   _response: Response,
   _next: NextFunction,
@@ -24,10 +25,14 @@ export const errorResponder = (
       details: error?.fields,
     });
   }
-  const status = error?.status_code || 500;
-  // console.log(error);
-  logger.error(error);
-  return _response.status(status).json(error);
+  if (error instanceof AppError) {
+    const status = error?.status_code || 500;
+    // console.log(error);
+    logger.error(error);
+    return _response.status(status).json(error);
+  }
+  logger.error('Uncaught Error');
+  logger.error(JSON.stringify(errorToJSON));
 };
 
 export const invalidPathHandler = (_request: Request, response: Response, _next: NextFunction) => {
