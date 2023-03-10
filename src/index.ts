@@ -12,6 +12,7 @@ import { RegisterRoutes } from './tsoa/routes';
 import logger from './core/config/logger';
 
 //import workers
+// TODO: research pm2 to run workers
 import './core/queues/workers/send-mail.worker';
 import './core/queues/workers/check-connection.worker';
 
@@ -25,7 +26,7 @@ let server: Server;
 // connect database
 connectMongoDB();
 
-(async () => {
+(async (): Promise<void> => {
   await RepeatQueue.add('', {}, { repeat: { every: 1000 * 60 * 5 } });
 })();
 

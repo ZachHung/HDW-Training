@@ -1,7 +1,7 @@
 import Joi from 'joi';
-import { IPost } from './posts.model';
+import { PostSchema } from './posts.model';
 
-export type CreatePostDTO = Pick<IPost, 'title' | 'content'>;
+export type CreatePostDTO = Pick<PostSchema, 'title' | 'content'>;
 export const createPostSchema = Joi.object<CreatePostDTO>({
   title: Joi.string().required(),
   content: Joi.string().required(),

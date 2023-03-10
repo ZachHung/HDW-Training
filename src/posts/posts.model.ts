@@ -1,15 +1,15 @@
 import mongoose, { model, Types } from 'mongoose';
 import { MongoBaseSchema } from '../core/utils/types/mongo.base.interface';
-import { IUser, User } from '../users/users.model';
+import { UserSchema, User } from '../users/users.model';
 const { Schema } = mongoose;
 
-export interface IPost extends MongoBaseSchema {
-  user_id?: IUser;
+export interface PostSchema extends MongoBaseSchema {
+  user_id?: UserSchema;
   title: string;
   content: string;
 }
 
-const postSchema = new Schema<IPost>(
+const postSchema = new Schema<PostSchema>(
   {
     user_id: {
       type: Types.ObjectId,
@@ -22,5 +22,5 @@ const postSchema = new Schema<IPost>(
   { collection: 'posts' },
 );
 
-const Post = model<IPost>('Post', postSchema);
+const Post = model<PostSchema>('Post', postSchema);
 export { postSchema, Post };

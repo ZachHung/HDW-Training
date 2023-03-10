@@ -1,16 +1,16 @@
 import mongoose, { model, Types } from 'mongoose';
 import { MongoBaseSchema } from '../core/utils/types/mongo.base.interface';
-import { IEvent } from '../events/events.model';
-import { IUser, User } from '../users/users.model';
+import { EventSchema } from '../events/events.model';
+import { UserSchema, User } from '../users/users.model';
 const { Schema } = mongoose;
 
-export interface IVoucher extends MongoBaseSchema {
-  event_id?: IEvent;
+export interface VoucherSchema extends MongoBaseSchema {
+  event_id?: EventSchema;
   active: boolean;
-  user_id?: IUser;
+  user_id?: UserSchema;
 }
 
-const voucherSchema = new Schema<IVoucher>(
+const voucherSchema = new Schema<VoucherSchema>(
   {
     event_id: { type: Types.ObjectId, ref: Event },
     active: { type: Boolean, default: false },
@@ -19,5 +19,5 @@ const voucherSchema = new Schema<IVoucher>(
   { collection: 'vouchers' },
 );
 
-export const Voucher = model<IVoucher>('Voucher', voucherSchema);
+export const Voucher = model<VoucherSchema>('Voucher', voucherSchema);
 export { voucherSchema };

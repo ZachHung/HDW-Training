@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import logger from '../../config/logger';
 dotenv.config();
 
-export const checkConnection = async () => {
+export const checkConnection = async (): Promise<void> => {
   logger.info('Checking database connection...');
   switch (mongoose.connection.readyState) {
     case 1:

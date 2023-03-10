@@ -1,4 +1,3 @@
-import { Request as ExRequest, Response, NextFunction } from 'express';
 import {
   Body,
   Controller,
@@ -12,13 +11,13 @@ import {
   Security,
   Tags,
 } from 'tsoa';
-import { PostRoutes, Routes } from '../core/utils/constants/api';
+import { PostRoutes } from '../core/utils/constants/api';
 import { Roles } from '../core/utils/constants/roles';
 import { createResponse, HttpResponse } from '../core/utils/helpers/response';
 import { validate } from '../core/utils/helpers/validate';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
 import { CreatePostDTO, createPostSchema, UpdatePostDTO, updatePostSchema } from './posts.dto';
-import { IPost } from './posts.model';
+import { PostSchema } from './posts.model';
 import { PostService } from './posts.service';
 
 @Route('posts')
@@ -29,7 +28,7 @@ export class PostController extends Controller {
   async create(
     @Request() req: CustomRequest,
     @Body() body: CreatePostDTO,
-  ): Promise<HttpResponse<IPost>> {
+  ): Promise<HttpResponse<PostSchema>> {
     const payload = validate<CreatePostDTO>(body, createPostSchema);
     // const { user } = req as CustomRequest;
     const newPost = await new PostService().create(req.user._id, payload);
@@ -38,21 +37,21 @@ export class PostController extends Controller {
 
   @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_BY_ID)
-  async getById(@Path() id: string): Promise<HttpResponse<IPost>> {
+  async getById(@Path() id: string): Promise<HttpResponse<PostSchema>> {
     const post = await new PostService().getById(id);
     return createResponse(this, post);
   }
 
   @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_BY_USER)
-  async getByUser(@Path() id: string): Promise<HttpResponse<IPost[]>> {
+  async getByUser(@Path() id: string): Promise<HttpResponse<PostSchema[]>> {
     const post = await new PostService().getByUser(id);
     return createResponse(this, post);
   }
 
   @Security('jwt', [Roles.CUSTOMER])
   @Get(PostRoutes.GET_ALL_POSTS)
-  async getAll(): Promise<HttpResponse<IPost[]>> {
+  async getAll(): Promise<HttpResponse<PostSchema[]>> {
     const post = await new PostService().getAll();
     return createResponse(this, post);
   }
@@ -63,7 +62,7 @@ export class PostController extends Controller {
     @Request() req: CustomRequest,
     @Path() id: string,
     @Body() body: UpdatePostDTO,
-  ): Promise<HttpResponse<IPost>> {
+  ): Promise<HttpResponse<PostSchema>> {
     const payload = validate<UpdatePostDTO>(body, updatePostSchema);
     const post = await new PostService().update(payload, id);
     return createResponse(this, post);
@@ -71,7 +70,7 @@ export class PostController extends Controller {
 
   @Security('jwt', [Roles.CUSTOMER])
   @Delete(PostRoutes.DELETE_ID)
-  async delete(@Path() id: string): Promise<HttpResponse<IPost>> {
+  async delete(@Path() id: string): Promise<HttpResponse<PostSchema>> {
     const post = await new PostService().delete(id);
     return createResponse(this, post);
   }

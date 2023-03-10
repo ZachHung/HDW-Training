@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { IUser } from '../../../users/users.model';
+import { UserSchema } from '../../../users/users.model';
 import { getEnv } from '../helpers/get-env';
 import * as dotenv from 'dotenv';
 import { createError } from '../helpers/error';
 import { Roles } from '../constants/roles';
 dotenv.config();
 
-// TODO: Move all typescrypt type to core/types
 export type CustomRequest = Request & {
-  user: IUser;
+  user: UserSchema;
 };
 
 export const expressAuthentication = (request: Request, securityName: string, roles: string[]) => {
@@ -22,7 +21,7 @@ export const expressAuthentication = (request: Request, securityName: string, ro
       if (err !== null || decoded === undefined || typeof decoded === 'string')
         return reject(createError(401, 'Invalid Token'));
       const customRequest = request as CustomRequest;
-      customRequest.user = decoded as IUser;
+      customRequest.user = decoded as UserSchema;
 
       // TODO: check if is the author then 403
       // if (!roles.includes(Roles.OP) || customRequest.user._id !== )
@@ -38,16 +37,4 @@ export const expressAuthentication = (request: Request, securityName: string, ro
       resolve(decoded);
     });
   });
-
-  // (req: Request, res: Response, next: NextFunction) => {
-  // const customRequest = req as CustomRequest;
-  // verifyToken(req, res, () => {
-  //   if (
-  //     roles.some(
-  //       (role) => role === customRequest.user.role || customRequest.user.role === Roles.ADMIN,
-  //     )
-  //   ) {
-  //     next();
-  //   } else throw Error;
-  // });
 };

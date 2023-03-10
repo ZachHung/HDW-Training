@@ -31,10 +31,13 @@ export const errorResponder = (
     logger.error(error);
     return _response.status(status).json(error);
   }
-  logger.error('Uncaught Error');
-  logger.error(JSON.stringify(errorToJSON));
+  logger.error(`Uncaught Error\n${errorToJSON(error)}`);
 };
 
-export const invalidPathHandler = (_request: Request, response: Response, _next: NextFunction) => {
+export const invalidPathHandler = (
+  _request: Request,
+  response: Response,
+  _next: NextFunction,
+): void => {
   response.status(404).json(createError(404, 'Path not found'));
 };
