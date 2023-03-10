@@ -31,4 +31,5 @@ export const EventRoutes = {
 
 export const VoucherRoutes = {
   POST_CREATE_VOUCHER: ``,
+  POST_ACTIVATE_VOUCHER: `{eventId}/active`,
 };

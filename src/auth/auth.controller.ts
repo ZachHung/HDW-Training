@@ -4,7 +4,7 @@ import { Roles } from '../core/utils/constants/roles';
 import { createResponse, HttpResponse, validate } from '../core/utils/helpers';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
 import { UserService } from '../users/user.service';
-import { IUser } from '../users/users.model';
+import { UserSchema } from '../users/users.model';
 import {
   LoginDTO,
   loginSchema,
@@ -18,7 +18,7 @@ import { AuthService } from './auth.service';
 @Route('auth')
 export class AuthController extends Controller {
   @Post(AuthRoutes.POST_REGISTER)
-  async create(@Body() body: RegisterDTO): Promise<HttpResponse<IUser>> {
+  async create(@Body() body: RegisterDTO): Promise<HttpResponse<UserSchema>> {
     const payload = validate<RegisterDTO>(body, registerSchema);
     const newUser = await new AuthService().register(payload);
     return createResponse(this, newUser, 201);
@@ -38,14 +38,14 @@ export class AuthController extends Controller {
 
   @Security('jwt', [Roles.CUSTOMER])
   @Get(AuthRoutes.GET_ME)
-  async getMe(@Request() req: CustomRequest): Promise<HttpResponse<IUser>> {
+  async getMe(@Request() req: CustomRequest): Promise<HttpResponse<UserSchema>> {
     const { user } = req;
     return createResponse(this, user);
   }
 
   @Security('jwt', [Roles.ADMIN])
   @Get(AuthRoutes.GET_ALL_USERS)
-  async getAll(@Request() _req: CustomRequest): Promise<HttpResponse<IUser[]>> {
+  async getAll(@Request() _req: CustomRequest): Promise<HttpResponse<UserSchema[]>> {
     const result = await new UserService().getAll();
     return createResponse(this, result);
   }

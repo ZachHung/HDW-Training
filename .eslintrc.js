@@ -14,6 +14,7 @@ module.exports = {
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
     'no-throw-literal': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'warn',
   },
   ignorePatterns: ['dist/', '.eslintrc.js'],
 };

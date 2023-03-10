@@ -5,7 +5,7 @@ import { createResponse, HttpResponse } from '../core/utils/helpers/response';
 import { validate } from '../core/utils/helpers/validate';
 import { CustomRequest } from '../core/utils/middleware/auth.middleware';
 import { CreateEventDTO, createEventSchema, EditEventDTO, editEventSchema } from './events.dto';
-import { IEvent } from './events.model';
+import { EventSchema } from './events.model';
 import { EventService } from './events.service';
 
 @Route('events')
@@ -16,7 +16,7 @@ export class EventController extends Controller {
   async create(
     @Request() req: CustomRequest,
     @Body() body: CreateEventDTO,
-  ): Promise<HttpResponse<IEvent>> {
+  ): Promise<HttpResponse<EventSchema>> {
     const payload = validate<CreateEventDTO>(body, createEventSchema);
     // const { user } = req as CustomRequest;
     const newEvent = await new EventService().create(payload);
@@ -28,7 +28,7 @@ export class EventController extends Controller {
   async editMe(
     @Request() req: CustomRequest,
     @Path() eventId: string,
-  ): Promise<HttpResponse<IEvent>> {
+  ): Promise<HttpResponse<EventSchema>> {
     const { user } = req;
     const payload = validate<EditEventDTO>({ event_id: eventId }, editEventSchema);
     const updateEvent = await new EventService().edit(user._id, payload.event_id);
@@ -40,7 +40,7 @@ export class EventController extends Controller {
   async editRelease(
     @Request() req: CustomRequest,
     @Path() eventId: string,
-  ): Promise<HttpResponse<IEvent>> {
+  ): Promise<HttpResponse<EventSchema>> {
     const { user } = req;
     const payload = validate<EditEventDTO>({ event_id: eventId }, editEventSchema);
     const updateEvent = await new EventService().releaseEdit(user._id, payload.event_id);
@@ -52,7 +52,7 @@ export class EventController extends Controller {
   async editMaintain(
     @Request() req: CustomRequest,
     @Path() eventId: string,
-  ): Promise<HttpResponse<IEvent>> {
+  ): Promise<HttpResponse<EventSchema>> {
     const { user } = req;
     const payload = validate<EditEventDTO>({ event_id: eventId }, editEventSchema);
     const updateEvent = await new EventService().maintainEdit(user._id, payload.event_id);

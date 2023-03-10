@@ -6,7 +6,7 @@ import { RepeatQueue } from '../../queues/repeat.queue';
 import checkConnectionWorker from '../../queues/workers/check-connection.worker';
 import emailWorker from '../../queues/workers/send-mail.worker';
 
-export const shutdownGracefully = async (server: Server) => {
+export const shutdownGracefully = async (server: Server): Promise<void> => {
   try {
     logger.warn('Closing http server...');
     await emailWorker.close();

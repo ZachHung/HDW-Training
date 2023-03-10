@@ -6,3 +6,13 @@ export const BullConnection = {
   host: getEnv('REDIS_URL'),
   port: +getEnv('REDIS_PORT'),
 };
+
+export const emailJobOptions = {
+  removeOnComplete: true,
+  removeOnFail: 500,
+  attempts: 3,
+  backoff: {
+    type: 'exponential',
+    delay: 3000,
+  },
+};

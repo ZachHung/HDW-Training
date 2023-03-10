@@ -1,7 +1,7 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { createError } from '../core/utils/helpers/error';
 import { LoginDTO, RefreshDTO, RegisterDTO } from './auth.dto';
-import { IUser, User } from '../users/users.model';
+import { UserSchema, User } from '../users/users.model';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import bcrypt from 'bcrypt';
@@ -9,12 +9,12 @@ import { getEnv } from '../core/utils/helpers/get-env';
 import jwt from 'jsonwebtoken';
 
 export class AuthService {
-  async register(registerDTO: RegisterDTO) {
-    const query: FilterQuery<IUser> = {
+  async register(registerDTO: RegisterDTO): Promise<UserSchema> {
+    const query: FilterQuery<UserSchema> = {
       $or: [{ username: registerDTO.username }, { email: registerDTO.email }],
     };
     registerDTO.password = await bcrypt.hash(registerDTO.password, +getEnv('SALT_ROUND'));
-    const update: UpdateQuery<IUser> = registerDTO;
+    const update: UpdateQuery<UserSchema> = registerDTO;
     const options: QueryOptions & { rawResult: true } = {
       upsert: true,
       new: true,
@@ -26,12 +26,12 @@ export class AuthService {
     });
     if (result.lastErrorObject?.updatedExisting) throw createError(400, 'User already exist');
 
-    const serializedUser = result.value?.toJSON() as IUser;
+    const serializedUser = result.value?.toJSON() as UserSchema;
     return serializedUser;
   }
 
-  async login(loginDTO: LoginDTO) {
-    const query: FilterQuery<IUser> = {
+  async login(loginDTO: LoginDTO): Promise<{ accessToken: string; refreshToken: string }> {
+    const query: FilterQuery<UserSchema> = {
       $or: [{ username: loginDTO.username }, { email: loginDTO.username }],
     };
     const user = await User.findOne(query).lean();
@@ -53,10 +53,12 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async refreshToken(refreshDTO: RefreshDTO) {
+  async refreshToken(
+    refreshDTO: RefreshDTO,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const { refresh_token } = refreshDTO;
-      const userData = jwt.verify(refresh_token, getEnv('REFRESH_SECRET')) as IUser & {
+      const userData = jwt.verify(refresh_token, getEnv('REFRESH_SECRET')) as UserSchema & {
         iat: number;
         exp: number;
       };
